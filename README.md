@@ -15,6 +15,8 @@ The chatbot answers user questions **ONLY** from the provided `"Agentic AI eBook
 
 ## 🏛️ System Architecture
 
+![System Architecture](docs/architecture.png)
+
 ```text
        ┌────────────────────────┐
        │   Ebook-Agentic-AI.pdf │
@@ -49,8 +51,6 @@ The chatbot answers user questions **ONLY** from the provided `"Agentic AI eBook
        │    FastAPI JSON Output │ (answer, context, confidence)
        └────────────────────────┘
 ```
-
-![System Architecture](docs/architecture.png)
 
 ---
 
