@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -80,7 +81,7 @@ async def chat_endpoint(request: ChatRequest):
     logger.info(f"Received chat question: '{request.question}'")
 
     try:
-        result = run_rag_pipeline(request.question.strip())
+        result = await asyncio.to_thread(run_rag_pipeline, request.question.strip())
         logger.info(f"Successfully processed query. Answer length: {len(result['answer'])}, Confidence: {result['confidence']}")
 
         return ChatResponse(

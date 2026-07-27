@@ -8,6 +8,7 @@ class ChatRequest(BaseModel):
     question: str = Field(
         ...,
         min_length=1,
+        max_length=2000,
         json_schema_extra={"example": "What is ReAct?"},
         description="User question to be answered using the Agentic AI eBook.",
     )
