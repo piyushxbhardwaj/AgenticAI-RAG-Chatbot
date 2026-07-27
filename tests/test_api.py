@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 # Ensure root project directory is in sys.path for direct pytest invocation
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -8,8 +8,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import pytest
 from fastapi.testclient import TestClient
 
-from app.api import app
 from app.rag import NOT_FOUND_RESPONSE
+
+# Prevent external LLM & embedding API calls during module initialization
+with patch("app.embeddings.get_embedding_model", return_value=MagicMock()), \
+     patch("app.retrieval.VectorStoreManager.get_indexed_count", return_value=10):
+    from app.api import app
 
 client = TestClient(app)
 
@@ -35,7 +39,7 @@ def test_chat_endpoint_empty_question():
 
 
 def test_chat_endpoint_in_domain_question():
-    """Tests POST /chat endpoint with a valid in-domain eBook question using mocked RAG pipeline."""
+    """Tests POST /chat endpoint with a valid in-domain question using mocked RAG pipeline."""
     mock_response = {
         "answer": "ReAct (Reasoning and Acting) is an architectural framework where an AI agent alternates between explicit reasoning traces and action steps.",
         "context": [
@@ -47,24 +51,16 @@ def test_chat_endpoint_in_domain_question():
     with patch("app.api.run_rag_pipeline", return_value=mock_response) as mock_pipeline:
         response = client.post("/chat", json={"question": "What is ReAct?"})
 
-        # 1. Verify status code
+        # 1. Verify status code (HTTP 200)
         assert response.status_code == 200
 
-        # 2. Verify response schema keys
+        # 2. Verify response fields (answer, context, confidence)
         data = response.json()
-        assert "answer" in data
-        assert "context" in data
-        assert "confidence" in data
-
-        # 3. Verify response field values and types
         assert data["answer"] == mock_response["answer"]
         assert data["context"] == mock_response["context"]
         assert data["confidence"] == 0.91
-        assert isinstance(data["answer"], str)
-        assert isinstance(data["context"], list)
-        assert isinstance(data["confidence"], float)
 
-        # 4. Verify pipeline invocation
+        # 3. Verify pipeline entrypoint call
         mock_pipeline.assert_called_once_with("What is ReAct?")
 
 
@@ -79,22 +75,14 @@ def test_chat_endpoint_out_of_domain_question():
     with patch("app.api.run_rag_pipeline", return_value=mock_response) as mock_pipeline:
         response = client.post("/chat", json={"question": "What is the capital of France?"})
 
-        # 1. Verify status code
+        # 1. Verify status code (HTTP 200)
         assert response.status_code == 200
 
-        # 2. Verify response schema keys
+        # 2. Verify response fields (answer, context, confidence)
         data = response.json()
-        assert "answer" in data
-        assert "context" in data
-        assert "confidence" in data
-
-        # 3. Verify response field values and types
         assert data["answer"] == NOT_FOUND_RESPONSE
         assert data["context"] == []
         assert data["confidence"] == 0.0
-        assert isinstance(data["answer"], str)
-        assert isinstance(data["context"], list)
-        assert isinstance(data["confidence"], float)
 
-        # 4. Verify pipeline invocation
+        # 3. Verify pipeline entrypoint call
         mock_pipeline.assert_called_once_with("What is the capital of France?")
