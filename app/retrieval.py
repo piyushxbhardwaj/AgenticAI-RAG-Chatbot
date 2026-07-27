@@ -88,10 +88,10 @@ class VectorStoreManager:
     def get_indexed_count(self) -> int:
         """Returns total count of indexed document vectors."""
         try:
-            if self.store_type == "chroma" and hasattr(self._vector_store, "_collection"):
-                collection = getattr(self._vector_store, "_collection", None)
-                if collection and hasattr(collection, "count"):
-                    return collection.count()
+            if self.store_type == "chroma" and hasattr(self._vector_store, "get"):
+                stored_data = self._vector_store.get()
+                if stored_data and "ids" in stored_data:
+                    return len(stored_data["ids"])
             elif hasattr(self._vector_store, "index"):
                 stats = self._vector_store.index.describe_index_stats()
                 return stats.total_vector_count
