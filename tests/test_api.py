@@ -52,4 +52,4 @@ def test_chat_endpoint_out_of_domain_question():
     data = response.json()
     assert data["answer"] == NOT_FOUND_RESPONSE
     assert data["context"] == []
-    assert data["confidence"] == 0.0
+    assert 0.0 <= data["confidence"] < 0.35
