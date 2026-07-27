@@ -8,7 +8,7 @@ class ChatRequest(BaseModel):
     question: str = Field(
         ...,
         min_length=1,
-        example="What is ReAct?",
+        json_schema_extra={"example": "What is ReAct?"},
         description="User question to be answered using the Agentic AI eBook.",
     )
 
@@ -18,7 +18,7 @@ class ChatResponse(BaseModel):
 
     answer: str = Field(
         ...,
-        example="ReAct is a reasoning and acting framework for LLMs...",
+        json_schema_extra={"example": "ReAct is a reasoning and acting framework for LLMs..."},
         description="Grounded answer generated from the eBook context.",
     )
     context: List[str] = Field(
@@ -29,7 +29,7 @@ class ChatResponse(BaseModel):
         ...,
         ge=0.0,
         le=1.0,
-        example=0.91,
+        json_schema_extra={"example": 0.91},
         description="Normalized similarity confidence score (0.0 to 1.0).",
     )
 
@@ -37,7 +37,7 @@ class ChatResponse(BaseModel):
 class HealthResponse(BaseModel):
     """Output payload for GET /health endpoint."""
 
-    status: str = Field(example="healthy")
-    vector_store: str = Field(example="chroma")
-    llm_provider: str = Field(example="openai")
-    documents_indexed: int = Field(example=318)
+    status: str = Field(json_schema_extra={"example": "healthy"})
+    vector_store: str = Field(json_schema_extra={"example": "chroma"})
+    llm_provider: str = Field(json_schema_extra={"example": "openai"})
+    documents_indexed: int = Field(json_schema_extra={"example": 318})

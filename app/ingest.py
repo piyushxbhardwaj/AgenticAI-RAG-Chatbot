@@ -1,5 +1,10 @@
 import os
 import sys
+from pathlib import Path
+
+# Ensure root project directory is in sys.path for direct script execution
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from loguru import logger
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
